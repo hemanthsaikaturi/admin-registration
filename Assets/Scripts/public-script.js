@@ -178,7 +178,7 @@ if(regForm) {
                 names.push(registrationData[`p${i}_name`]);
             }
             
-            let mailSubject = `Registration Confirmed | ${eventData.eventName}`;
+            let mailSubject = `CONFIRMATION MAIL OF REGISTRATION | IEEE - VBIT SB`;
             let mailBody = eventData.emailTemplate.replace(/{name}/g, names.join(' & ')).replace(/{eventName}/g, eventData.eventName);
             await db.collection(mailCollectionName).add({ to: emails, message: { subject: mailSubject, html: mailBody }});
             
