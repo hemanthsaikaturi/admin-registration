@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 description: document.getElementById('eventDescription').value,
                 participationType: document.getElementById('participationType').value,
                 teamSize: document.getElementById('teamSize').value,
-                registrationLimit: document.getElementById('regLimit').value,
+         //       registrationLimit: document.getElementById('regLimit').value,
                 emailTemplate: document.getElementById('emailContent').value,
                 customQuestions: Array.from(document.querySelectorAll('#custom-questions-container .border')).map(q => ({
                     label: q.querySelector('[data-type="label"]').value,
