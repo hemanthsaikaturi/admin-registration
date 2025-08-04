@@ -2,16 +2,12 @@
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-
 // Firebase Services
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-
 // --- FUNCTION DEFINITIONS ---
-
-// --- Functions for Managing LIVE Events ---
 function displayEvents() {
     const eventsListContainer = document.getElementById('events-list-container');
     const eventsTable = document.getElementById('events-table');
@@ -79,12 +75,11 @@ async function toggleEventStatus(eventId) {
     }
 }
 
-// --- Functions for Managing PAST Events ---
 async function displayPastEvents() {
     const pastEventsList = document.getElementById('past-events-list');
     const pastEventsLoader = document.getElementById('past-events-loader');
     if (!pastEventsList || !pastEventsLoader) return;
-
+    
     pastEventsLoader.style.display = 'block';
     pastEventsList.innerHTML = '';
 
@@ -125,9 +120,8 @@ async function deletePastEvent(eventId) {
 
 
 // --- SCRIPT INITIALIZATION ---
-// This runs after the entire page is loaded
 document.addEventListener('DOMContentLoaded', () => {
-
+    // --- Element Definitions ---
     const dashboardContent = document.getElementById('dashboard-content');
     const logoutButton = document.getElementById('logout-button');
     const eventForm = document.getElementById('create-event-form');
@@ -135,14 +129,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const addQuestionBtn = document.getElementById('add-question-btn');
     const pastEventsForm = document.getElementById('past-events-form');
 
+    const teamSettingsContainer = document.getElementById('team-settings-container');
+    const teamSizeRangeToggle = document.getElementById('teamSizeRangeToggle');
+    const fixedSizeContainer = document.getElementById('fixed-size-container');
+    const rangeSizeContainer = document.getElementById('range-size-container');
+    const minTeamSizeSelect = document.getElementById('minTeamSize');
+    const maxTeamSizeSelect = document.getElementById('maxTeamSize');
+    const fixedTeamSizeSelect = document.getElementById('fixedTeamSize');
+
+    // --- Event Listeners ---
     if (logoutButton) {
         logoutButton.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'admin-login.html'));
     }
 
     if (participationType) {
         participationType.addEventListener('change', (e) => {
-            const teamSizeContainer = document.getElementById('team-size-container');
-            if (teamSizeContainer) teamSizeContainer.style.display = e.target.value === 'team' ? 'block' : 'none';
+            teamSettingsContainer.style.display = e.target.value === 'team' ? 'block' : 'none';
+        });
+    }
+
+    if (teamSizeRangeToggle) {
+        teamSizeRangeToggle.addEventListener('change', (e) => {
+            const isRange = e.target.checked;
+            rangeSizeContainer.style.display = isRange ? 'block' : 'none';
+            fixedSizeContainer.style.display = isRange ? 'none' : 'block';
+        });
+    }
+
+    if (minTeamSizeSelect) {
+        minTeamSizeSelect.addEventListener('change', () => {
+            const minVal = parseInt(minTeamSizeSelect.value, 10);
+            let maxVal = parseInt(maxTeamSizeSelect.value, 10);
+
+            for (const option of maxTeamSizeSelect.options) {
+                option.disabled = parseInt(option.value, 10) < minVal;
+            }
+
+            if (maxVal < minVal) {
+                maxTeamSizeSelect.value = minVal;
+            }
         });
     }
 
@@ -158,22 +183,40 @@ document.addEventListener('DOMContentLoaded', () => {
             container.insertAdjacentHTML('beforeend', newQuestionHTML);
         });
     }
-    
+
     if (eventForm) {
         eventForm.addEventListener('submit', (e) => {
             e.preventDefault();
+
+            let minTeamSize, maxTeamSize;
+            const currentParticipationType = document.getElementById('participationType').value;
+            
+            if (currentParticipationType === 'team') {
+                if (teamSizeRangeToggle.checked) {
+                    minTeamSize = parseInt(minTeamSizeSelect.value, 10);
+                    maxTeamSize = parseInt(maxTeamSizeSelect.value, 10);
+                } else {
+                    minTeamSize = parseInt(fixedTeamSizeSelect.value, 10);
+                    maxTeamSize = minTeamSize;
+                }
+            } else {
+                minTeamSize = 1;
+                maxTeamSize = 1;
+            }
+
             const eventData = {
                 eventName: document.getElementById('eventName').value,
                 description: document.getElementById('eventDescription').value,
-                participationType: document.getElementById('participationType').value,
-                teamSize: document.getElementById('teamSize').value,
-         //       registrationLimit: document.getElementById('regLimit').value,
+                participationType: currentParticipationType,
+                minTeamSize: minTeamSize,
+                maxTeamSize: maxTeamSize,
                 emailTemplate: document.getElementById('emailContent').value,
                 customQuestions: Array.from(document.querySelectorAll('#custom-questions-container .border')).map(q => ({
                     label: q.querySelector('[data-type="label"]').value,
                     type: q.querySelector('[data-type="type"]').value,
                 })).filter(q => q.label)
             };
+            
             const eventPosterFile = document.getElementById('eventPoster').files[0];
             if (!eventPosterFile) return alert("Please select an event poster.");
 
@@ -202,6 +245,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         successMessage.style.display = 'block';
                         eventForm.reset();
                         document.getElementById('custom-questions-container').innerHTML = '';
+                        participationType.dispatchEvent(new Event('change'));
+                        teamSizeRangeToggle.checked = false;
+                        teamSizeRangeToggle.dispatchEvent(new Event('change'));
                         displayEvents();
                         setTimeout(() => { successMessage.style.display = 'none'; }, 5000);
                     }).catch(err => alert("Error saving event: " + err.message))
@@ -240,7 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // This is the single, correct authentication check.
     auth.onAuthStateChanged(user => {
         const loader = document.getElementById('loader');
         if (!loader) return;
