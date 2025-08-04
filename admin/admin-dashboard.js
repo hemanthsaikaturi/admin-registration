@@ -350,16 +350,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // =========== NEWLY ADDED/RESTORED CODE BLOCK START ===========
     if (pastEventsForm) {
-        // ... Past events form submission logic is unchanged
+        pastEventsForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // This is the crucial line that prevents the page refresh.
+            const submitButton = pastEventsForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Saving...';
+
+            for (let i = 1; i <= 3; i++) {
+                const title = document.getElementById(`pastEventTitle${i}`).value;
+                const date = document.getElementById(`pastEventDate${i}`).value;
+                const posterFile = document.getElementById(`pastEventPoster${i}`).files[0];
+                
+                if (title && date && posterFile) {
+                    try {
+                        const storageRef = storage.ref(`past_event_posters/${Date.now()}_slot${i}_${posterFile.name}`);
+                        const uploadTask = await storageRef.put(posterFile);
+                        const downloadURL = await uploadTask.ref.getDownloadURL();
+                        await db.collection('pastEvents').add({ 
+                            title, 
+                            date, 
+                            posterURL: downloadURL, 
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+                        });
+                    } catch (err) { 
+                        alert(`Error uploading Slot ${i}: ${err.message}`); 
+                    }
+                }
+            }
+            
+            pastEventsForm.reset();
+            submitButton.disabled = false;
+            submitButton.textContent = 'Save All Filled Past Events';
+            displayPastEvents();
+        });
     }
+    // =========== NEWLY ADDED/RESTORED CODE BLOCK END ===========
 
     auth.onAuthStateChanged((user) => {
         const loader = document.getElementById('loader');
         const dashboardContent = document.getElementById('dashboard-content');
         if (user) {
             loader.style.display = 'none';
-            dashboardContent.style.display = 'block';
+            if(dashboardContent) dashboardContent.style.display = 'block';
             displayEvents();
             displayPastEvents();
         } else {
