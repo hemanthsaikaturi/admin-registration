@@ -29,18 +29,29 @@
     <div class="row">
       <div class="col-md-12">
         
-        <!-- SECTION 1: CREATE LIVE EVENT -->
-        <h2 class="mb-3">Create a New Live Event</h2>
+        <!-- SECTION 1: CREATE/EDIT EVENT FORM -->
+        <h2 class="mb-3" id="form-title">Create a New Live Event</h2>
         <div class="card card-body mb-5">
           <form id="create-event-form">
+            
+            <!-- Basic Details -->
             <h5>1. Basic Event Details</h5>
             <div class="form-row">
                 <div class="form-group col-md-6"><label>Event Name</label><input type="text" id="eventName" class="form-control" required/></div>
-                <div class="form-group col-md-6"><label>Event Poster</label><input type="file" id="eventPoster" class="form-control-file" accept="image/*" required/></div>
+                <div class="form-group col-md-6">
+                    <label>Event Poster</label>
+                    <input type="file" id="eventPoster" class="form-control-file" accept="image/*" />
+                    <div id="current-poster-container" class="mt-2" style="display: none;">
+                        <small>Current Poster:</small><br>
+                        <img id="current-poster-img" src="" alt="Current Poster" style="max-width: 100px; border-radius: 4px;" />
+                        <small class="form-text text-muted">Leave file input empty to keep the current poster.</small>
+                    </div>
+                </div>
             </div>
-            <div class="form-group"><label>Event Description (Include Date, Time, Venue, etc.)</label><textarea id="eventDescription" class="form-control" rows="5" required></textarea></div>
+            <div class="form-group"><label>Event Description</label><textarea id="eventDescription" class="form-control" rows="5" required></textarea></div>
             <hr/>
             
+            <!-- Registration Settings -->
             <h5>2. Registration Form Settings</h5>
             <div class="form-row">
                 <div class="form-group col-md-6"><label>Participation Type</label><select id="participationType" class="form-control"><option value="individual" selected>Individual</option><option value="team">Team</option></select></div>
@@ -50,8 +61,6 @@
                         <input class="form-check-input" type="checkbox" id="teamSizeRangeToggle">
                         <label class="form-check-label" for="teamSizeRangeToggle">Allow a range of team sizes</label>
                     </div>
-
-                    <!-- Container for FIXED team size -->
                     <div id="fixed-size-container">
                         <label>Required Team Size</label>
                         <select id="fixedTeamSize" class="form-control">
@@ -60,8 +69,6 @@
                             <option value="4">4</option>
                         </select>
                     </div>
-
-                    <!-- Container for RANGED team size -->
                     <div id="range-size-container" style="display: none;">
                         <div class="form-row">
                             <div class="form-group col-6">
@@ -87,33 +94,31 @@
                 </div>
             </div>
             
+            <!-- Custom Questions -->
             <div class="form-group">
                 <label><strong>Custom Form Questions</strong></label>
-                <div id="custom-questions-container">
-                    <!-- Custom questions will be added here by JS -->
-                </div>
+                <div id="custom-questions-container"></div>
                 <button type="button" id="add-question-btn" class="btn btn-sm btn-outline-secondary mt-2">+ Add Question</button>
             </div>
 
+            <!-- Email Content -->
             <hr/>
             <h5>3. Add Email Content</h5>
-            <div class="form-group"><label>Confirmation Email Content (HTML is supported)</label><textarea id="emailContent" class="form-control" rows="10" placeholder="Dear {name},
+            <div class="form-group"><label>Confirmation Email Content</label><textarea id="emailContent" class="form-control" rows="10" placeholder="Dear {name},..."></textarea></div>
+            <hr/>
+            <button type="submit" id="submit-event-button" class="btn btn-primary btn-lg btn-block">Save and Create Event</button>
+            <div id="success-message" class="alert alert-success mt-3" style="display: none"></div>
+          </form>
+        </div>
 
-Thank you for registering for {eventName}..."></textarea></div>
-<hr/>
-<button type="submit" class="btn btn-primary btn-lg btn-block">Save and Create Event</button>
-<div id="success-message" class="alert alert-success mt-3" style="display: none"></div>
-</form>
-</div>
-
-<!-- SECTION 2: MANAGE LIVE EVENTS -->
+        <!-- SECTION 2: MANAGE LIVE EVENTS -->
         <div class="mt-4">
           <h2 class="mb-3">Manage Live Events</h2>
           <div class="card card-body">
             <div id="events-list-loader" class="text-center"><p>Loading events...</p></div>
             <div class="table-responsive">
               <table class="table table-striped" id="events-table" style="display:none;">
-                <thead><tr><th>Event Name</th><th>Status</th><th>Is Active</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Event Name</th><th>Status</th><th>Is Active</th><th>Admin Actions</th></tr></thead>
                 <tbody id="events-list-container"></tbody>
               </table>
             </div>

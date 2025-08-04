@@ -1,10 +1,30 @@
 /* --- GLOBAL & TYPOGRAPHY --- */
+/* =========== NEW/MODIFIED STYLES START =========== */
+html {
+    height: 100%; /* Ensure the html element can be a height reference */
+}
+
 body {
+    min-height: 100%; /* Make body at least as tall as the html element */
+    display: flex;
+    flex-direction: column;
     background-color: #f8f9fa; /* A light, clean grey background */
     font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
     line-height: 1.6;
 }
+
+#content {
+    flex-grow: 1; /* Allows this container to grow and fill available space */
+    display: flex;
+    flex-direction: column; /* Stack its own children (header, container, footer) vertically */
+}
+
+/* This targets the main bootstrap container holding the event details and form */
+#content > .container {
+    flex-grow: 1; /* This is the key: makes the content area expand, pushing the footer down */
+}
+/* =========== NEW/MODIFIED STYLES END =========== */
 
 h2 {
     font-weight: 600;
@@ -145,7 +165,7 @@ section.about {
     background-color: #343a40;
     color: #adb5bd;
     padding: 20px 0;
-    margin-top: 50px;
+    /* margin-top is no longer needed with flexbox */
     width: 100%;
     text-align: center;
     display: flex;
@@ -169,8 +189,8 @@ section.about {
 .footer .social-icons a:hover {
     color: #fff;
 }
-/* ============== NEW PRELOADER STYLES ============== */
 
+/* ============== NEW PRELOADER STYLES ============== */
 #preloader {
     position: fixed;
     top: 0;
