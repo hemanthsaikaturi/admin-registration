@@ -1,3 +1,4 @@
+//AppScript to import data from Firestore into Google Sheets
 // Configuration - Only change this collection name as needed
 var FIREBASE_PROJECT_ID = 'registration-website-admin';
 var FIRESTORE_COLLECTION = 'eventnameParticipants/Teams'; // Update this for each collection as  required - event TeamSize 
